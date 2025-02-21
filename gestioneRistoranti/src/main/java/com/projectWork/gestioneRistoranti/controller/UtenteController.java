@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.springcookie.auth.AuthUser;
+import com.projectWork.gestioneRistoranti.auth.TokenService;
 import com.projectWork.gestioneRistoranti.model.Utente;
+import com.projectWork.gestioneRistoranti.model.UtenteRuolo;
 import com.projectWork.gestioneRistoranti.repository.UtenteRepository;
+import com.projectWork.gestioneRistoranti.repository.UtenteRuoloRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,7 +31,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @CrossOrigin(origins = {})
 public class UtenteController {
 
-	
+	@Autowired
+	private UtenteRuoloRepository utenteRuoloRepository;
 	@Autowired
 	private UtenteRepository utenteRepository;
 	
@@ -38,20 +41,24 @@ public class UtenteController {
 	
 	//metodo per aggiungere un utente
 	@PostMapping("/aggiungi")
-	public Object aggiungiUtente(@RequestBody Utente nuovoUtente, HttpServletRequest request, HttpServletResponse response) {
+	public Object aggiungiUtente(@RequestBody Utente nuovoUtente ,@RequestBody UtenteRuolo utenteRuolo, HttpServletRequest request, HttpServletResponse response) {
     	// Verifica l'autenticazione
+		if(Ruolo == "RISTORATORE") {
+			
+		}
+		utenteRuolo.setRuolo(Ruolo.RISTORATORE);
     	Utente authUtente = getAuthenticatedUtente(request);
         if (authUtente == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return Collections.singletonMap("message", "Non autorizzato");
         }
         // Verifica che l'utente abbia il ruolo "admin"
-        if (!"admin".equals(authUtente.getRuolo())) {
+        if (!"admin".equals(authUtente.getRuolo().toString())) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return Collections.singletonMap("message", "Accesso negato: solo admin può aggiungere utenti");
         }
         // Salva il nuovo utente nel database
-        nuovoUtente.setRuolo("user");
+        nuovoUtente.setRuolo("user"));
         nuovoUtente.setEmail(nuovoUtente.getEmail());
         utenteRepository.save(nuovoUtente);
         return Collections.singletonMap("message", "Utente aggiunto con successo");
@@ -93,7 +100,7 @@ public class UtenteController {
                 token = authHeader;
             }
             // Usa il TokenService per ottenere l'utente associato al token
-            return tokenService.getAuthUser(token);
+            return tokenService.getAuthUtente(token);
         }
         // Se non c'è header "Authorization", restituisce null
         return null;
