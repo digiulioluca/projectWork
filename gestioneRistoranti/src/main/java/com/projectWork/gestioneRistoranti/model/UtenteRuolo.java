@@ -57,4 +57,10 @@ public class UtenteRuolo {
 	public void setUtente(Utente utente) {
 		this.utente = utente;
 	}
+
+	@Override
+	public String toString() {
+		return ""+ruolo;
+	}
+	
 }

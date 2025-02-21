@@ -175,5 +175,5 @@ public class Utente {
 	public void setRuolo(UtenteRuolo ruolo) {
 		this.ruolo = ruolo;
 	}
-
+	
 }
