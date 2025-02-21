@@ -30,11 +30,7 @@ public class Utente {
 	
 	@Column(nullable = false)
 	private String cognome;
-	
-
-	@Column(nullable = false)
-	private String role;
-	
+		
 	/* oltre al not null, con 'unique' evitiamo che nel DB vadano a finire due mail uguali
 	Email sarà uno dei due campi NECESSARI per il login*/
 	@Column(nullable = false, unique = true)
@@ -64,10 +60,15 @@ public class Utente {
 	@Column(nullable = false, name = "nome_foto")
 	private String nomeFoto;
 		
-	// annotation per la gestione dei large object
+	// annotation per la gestione dei large object (foto nel nostro caso)
 	@Lob
 	@Column(length=1000000)
 	private byte[] foto;
+	
+	@OneToOne
+	@JoinColumn(name="ruolo_id", nullable = false)
+	@JsonManagedReference
+	private UtenteRuolo ruolo;
 	
 	// costruttori
 	public Utente() {}
@@ -77,7 +78,6 @@ public class Utente {
 		this.id=id;
 		this.nome=nome;
 		this.cognome=cognome;
-		this.role="user";
 		this.email=email;
 		this.password=password;
 		this.numeroCarta=numeroCarta;
@@ -110,14 +110,6 @@ public class Utente {
 
 	public void setCognome(String cognome) {
 		this.cognome = cognome;
-	}
-
-	public String getRole() {
-		return role;
-	}
-
-	public void setRole() {
-		this.role = "user";
 	}
 
 	public String getEmail() {

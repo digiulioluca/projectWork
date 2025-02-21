@@ -1,4 +1,4 @@
-/*	CAMPI ENTITA' ORDINE DETTAGLI
+/*	CAMPI ENTITA' 'ORDINE DETTAGLI'
  * 	- id
  * 	- prezzo
  * 	- quantità
@@ -6,6 +6,7 @@
 package com.projectWork.gestioneRistoranti.model;
 
 import jakarta.persistence.*;
+import org.hibernate.validator.constraints.Length;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -19,11 +20,12 @@ public class OrdineDettagli {
 	private Long id;
 	
 	// prezzo del singolo prodotto (da moltiplicare per la quantità)
-	@Column(nullable = false)
+	@Column(nullable = false, precision = 6, scale = 2)
 	private Double prezzo;
 	
 	// quantità singolo prodotto
 	@Column(nullable = false)
+	@Length(max = 50)
 	private int quantita;
 	
 	// seconda parte relazione 'ordine' e 'ordine_dettagli"

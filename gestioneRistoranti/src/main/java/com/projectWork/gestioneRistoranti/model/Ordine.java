@@ -40,7 +40,8 @@ public class Ordine {
 	@Column(nullable=false, name="data_ordine")
 	private LocalDate dataOrdine;
 	
-	@Column(nullable=false)
+	// campo totale (numero composto da 8 cifre, di cui 2 dopo la virgola)
+	@Column(nullable=false, precision = 8, scale = 2)
 	private Double totale;
 	
 	/* seconda parte relazione utente-ordine
