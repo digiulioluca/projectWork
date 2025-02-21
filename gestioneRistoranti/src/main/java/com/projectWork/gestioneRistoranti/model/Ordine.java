@@ -33,6 +33,7 @@ public class Ordine {
 	@Length(min=10, max=10)
 	private Long numeroOrdine;
 	
+	// campo per definire
 	@Column(nullable=false)
 	private Status status;
 	

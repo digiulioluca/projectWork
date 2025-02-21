@@ -22,6 +22,12 @@ import jakarta.validation.constraints.*;
 @Entity
 public class Ristorante {
 	
+	enum Tipo{
+		TRATTORIA,
+		RISTORANTE_PIZZERIA,
+		STELLATO
+	}
+	
 	//identificativo
 	@Id
 	@GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -50,6 +56,12 @@ public class Ristorante {
 	@Column(nullable = false)
 	private String provincia;
 	
+	@Column(length=200, nullable = false)
+	private String descrizione;
+	
+	@Column(nullable = false)
+	private Tipo tipo;
+	
 	//relazione molti a uno con tabella Utente
 	@ManyToOne
 	@JoinColumn(name="utente_id")
@@ -70,7 +82,8 @@ public class Ristorante {
 	public Ristorante() {}
 	
 	public Ristorante(Long id, String nome, String indirizzo, String email,
-			int numeroTelefono, String partitaIva, String citta, String provincia) {
+			int numeroTelefono, String partitaIva, String citta, String provincia, Tipo tipo,
+			String descrizione) {
 		this.id=id;
 		this.nome=nome;
 		this.indirizzo=indirizzo;
@@ -79,6 +92,8 @@ public class Ristorante {
 		this.partitaIva=partitaIva;
 		this.citta=citta;
 		this.provincia=provincia;
+		this.tipo=tipo;
+		this.descrizione=descrizione;
 	}
 
 	public Long getId() {
@@ -168,4 +183,21 @@ public class Ristorante {
 	public void setOrdini(List<Ordine> ordini) {
 		this.ordini = ordini;
 	}
+
+	public String getDescrizione() {
+		return descrizione;
+	}
+
+	public void setDescrizione(String descrizione) {
+		this.descrizione = descrizione;
+	}
+
+	public Tipo getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(Tipo tipo) {
+		this.tipo = tipo;
+	}
+	
 }
