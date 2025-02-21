@@ -23,4 +23,5 @@ public interface UtenteRepository extends JpaRepository<Utente, Long>{
 	 * @return Optional	-> contenente, o meno, l'utente ricercato via token
 	 */
 	Optional<Utente> findByToken(String token);
+
 }
