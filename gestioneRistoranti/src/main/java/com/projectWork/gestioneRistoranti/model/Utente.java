@@ -168,4 +168,12 @@ public class Utente {
 		this.token = token;
 	}
 
+	public UtenteRuolo getRuolo() {
+		return ruolo;
+	}
+
+	public void setRuolo(UtenteRuolo ruolo) {
+		this.ruolo = ruolo;
+	}
+
 }
