@@ -6,7 +6,7 @@
 package com.projectWork.gestioneRistoranti.model;
 
 import jakarta.persistence.*;
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -20,30 +20,28 @@ public class OrdineDettagli {
 	private Long id;
 	
 	// prezzo del singolo prodotto (da moltiplicare per la quantità)
-	@Column(nullable = false, precision = 6, scale = 2)
+	@Column(nullable = false, scale = 2)
 	private Double prezzo;
 	
 	// quantità singolo prodotto
-	@Column(nullable = false)
-	@Length(max = 50)
+	@Column(nullable = false, precision = 2)
 	private int quantita;
 	
 	// seconda parte relazione 'ordine' e 'ordine_dettagli"
 	@ManyToOne
 	@JoinColumn(name="ordine_id")
-	@JsonBackReference
+	@JsonBackReference("dettagliOrdine")
 	private Ordine ordine;
 	
 	// seconda parte relazione 'piatto' e 'ordine_dettagli"
 	@ManyToOne
 	@JoinColumn(name="piatto_id")
-	@JsonManagedReference
+	@JsonBackReference("ordinePiatto")
 	private Piatto piatto;
 	
 	// costruttore
 	public OrdineDettagli () {}
 
-	// getters e setters
 	public Long getId() {
 		return id;
 	}
@@ -83,5 +81,6 @@ public class OrdineDettagli {
 	public void setPiatto(Piatto piatto) {
 		this.piatto = piatto;
 	}
+
 	
 }

@@ -51,7 +51,6 @@ public class TokenService {
 	public Utente getAuthUtente(String token) {
 		Optional<Utente> u = utenteRepository.findByToken(token);
 		Utente utente = u.get();
-		
 		return utente;
 	}
 	
@@ -63,7 +62,7 @@ public class TokenService {
 	public void removeToken(String token) { 
 		Optional<Utente> u = utenteRepository.findByToken(token);
 		Utente utente = u.get();
-		utente.setToken(token);
+		utente.setToken(null);
 		utenteRepository.save(utente);
 	}
 }

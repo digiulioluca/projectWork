@@ -8,10 +8,11 @@ package com.projectWork.gestioneRistoranti.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.*;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import java.util.List;
 
 @Entity
 public class Ordine {
@@ -29,8 +30,7 @@ public class Ordine {
 	private Long id;
 	
 	// numero ordine che andremo a generare; univoco
-	@Column(nullable=false, name="numero_ordine", unique=true)
-	@Length(min=10, max=10)
+	@Column(nullable=false, name="numero_ordine", unique=true, precision = 10)
 	private Long numeroOrdine;
 	
 	// campo per definire
@@ -42,7 +42,7 @@ public class Ordine {
 	private LocalDate dataOrdine;
 	
 	// campo totale (numero composto da 8 cifre, di cui 2 dopo la virgola)
-	@Column(nullable=false, precision = 8, scale = 2)
+	@Column(nullable=false, scale = 2)
 	private Double totale;
 	
 	/* seconda parte relazione utente-ordine
@@ -50,18 +50,22 @@ public class Ordine {
 	 * un solo utente)*/
 	@ManyToOne
 	@JoinColumn(name="utente_id")
-	@JsonBackReference
+	@JsonBackReference("ordineUtente")
 	private Utente utente;
 	
 	// relazione uno-a-molti tra 'ordine' e 'ordine_dettagli'
 	@OneToMany(mappedBy="ordine")
-	@JsonManagedReference
+	@JsonManagedReference("dettagliOrdine")
 	private List<OrdineDettagli> dettagli;
+	
+	@ManyToOne
+	@JoinColumn(name="ristorante_id")
+	@JsonBackReference("ristoranteOrdine")
+	private Ristorante ristorante;
 	
 	// costruttore
 	public Ordine () {}
-	
-	// getters e setters
+
 	public Long getId() {
 		return id;
 	}
@@ -94,12 +98,12 @@ public class Ordine {
 		this.dataOrdine = dataOrdine;
 	}
 
-	public Double getPrezzo() {
+	public Double getTotale() {
 		return totale;
 	}
 
-	public void setPrezzo(Double prezzo) {
-		this.totale = prezzo;
+	public void setTotale(Double totale) {
+		this.totale = totale;
 	}
 
 	public Utente getUtente() {
@@ -118,4 +122,14 @@ public class Ordine {
 		this.dettagli = dettagli;
 	}
 
+	public Ristorante getRistorante() {
+		return ristorante;
+	}
+
+	public void setRistorante(Ristorante ristorante) {
+		this.ristorante = ristorante;
+	}
+
+	
+	
 }

@@ -7,9 +7,10 @@
 package com.projectWork.gestioneRistoranti.model;
 
 import jakarta.persistence.*;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import java.util.List;
 
 @Entity
 public class Piatto {
@@ -24,7 +25,7 @@ public class Piatto {
 	private String nome;
 	
 	// campo costo (numero composto da 5 cifre totali, di cui 2 dopo la virgola)
-	@Column(nullable = false, precision = 5, scale = 2)
+	@Column(nullable = false, scale=2)
 	private Double costo;
 	
 	// decrizione piatto. Il campo può contenere max 200 caratteri
@@ -36,17 +37,21 @@ public class Piatto {
 	 * 	- uno-a-molti con 'foto_piatto'
 	 */
 	@OneToMany(mappedBy="piatto")
-	@JsonBackReference
+	@JsonManagedReference("ordinePiatto")
 	private List<OrdineDettagli> ordinato;
 	
 	@OneToMany(mappedBy="piatto")
 	@JsonManagedReference
-	private List<FotoPiatto> foto;
+	private List<FotoPiatto> fotoPiatto;
+	
+	@ManyToOne
+	@JoinColumn(name="categoria_id")
+	@JsonBackReference("categoriaPiatto")
+	private Categoria categoria;
 	
 	// costruttore
 	public Piatto() {}
 
-	// getters e setters
 	public Long getId() {
 		return id;
 	}
@@ -88,11 +93,20 @@ public class Piatto {
 	}
 
 	public List<FotoPiatto> getFoto() {
-		return foto;
+		return fotoPiatto;
 	}
 
 	public void setFoto(List<FotoPiatto> foto) {
-		this.foto = foto;
+		this.fotoPiatto = foto;
 	}
+
+	public Categoria getCategoria() {
+		return categoria;
+	}
+
+	public void setCategoria(Categoria categoria) {
+		this.categoria = categoria;
+	}
+	
 	
 }

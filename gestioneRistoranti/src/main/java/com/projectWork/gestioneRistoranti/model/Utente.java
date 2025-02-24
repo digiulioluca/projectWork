@@ -14,10 +14,17 @@ package com.projectWork.gestioneRistoranti.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
-public class Utente {
+public class Utente{
+	
+	public enum Ruolo {
+		RISTORATORE,
+		USER;
+	}
 	
 	// identificativo
 	@Id
@@ -42,51 +49,39 @@ public class Utente {
 	@Size(min = 6)
 	private String password;
 	
-	@Column(name="numero_carta", nullable = false)
-	@Size(min=16, max=16)
+	@Column(nullable = false, name="numero_carta")
+	@Min(1000000000000000L) // Valore minimo: 16 cifre
+	@Max(9999999999999999L) // Valore massimo: 16 cifre
 	private Long numeroCarta;
 	
 	/* relazione uno a molti con tabella ordini. Attraverso
 	 * la seconda annotation evitiamo la ricorsività da entrambi i lati.
 	 * In questo caso (managed) andremo a visualizzare solo lato utente gli ordini effettuati*/
 	@OneToMany(mappedBy="utente")
-	@JsonManagedReference
+	@JsonManagedReference("ordineUtente")
 	private List<Ordine> ordini;
 	
 	// attributo 'token' per il logi-in
 	private String token;
 	
 	// nome foto
-	@Column(nullable = false, name = "nome_foto")
+	@Column(name = "nome_foto", nullable=true)
 	private String nomeFoto;
 		
 	// annotation per la gestione dei large object (foto nel nostro caso)
 	@Lob
-	@Column(length=1000000)
+	@Column(length=100000000)
 	private byte[] foto;
 	
-	@OneToOne
-	@JoinColumn(name="ruolo_id", nullable = false)
-	@JsonManagedReference
-	private UtenteRuolo ruolo;
+	@Column(nullable=false)
+	private Ruolo ruolo;
 	
-	// costruttori
+	@OneToMany(mappedBy="utente")
+	@JsonManagedReference("ristoranteUtente")
+	private List<Ristorante> ristoranti;
+	
+	// costruttore	
 	public Utente() {}
-
-	public Utente(Long id, String nome, String cognome, String email, String password,
-			Long numeroCarta, String token, String nomeFoto, byte[] foto) {
-		this.id=id;
-		this.nome=nome;
-		this.cognome=cognome;
-		this.email=email;
-		this.password=password;
-		this.numeroCarta=numeroCarta;
-		this.token=token;
-		this.nomeFoto=nomeFoto;
-		this.foto=foto;
-	}
-	
-	// getters e setters
 
 	public Long getId() {
 		return id;
@@ -144,6 +139,14 @@ public class Utente {
 		this.ordini = ordini;
 	}
 
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
 	public String getNomeFoto() {
 		return nomeFoto;
 	}
@@ -159,21 +162,21 @@ public class Utente {
 	public void setFoto(byte[] foto) {
 		this.foto = foto;
 	}
-	
-	public String getToken() {
-		return token;
-	}
 
-	public void setToken(String token) {
-		this.token = token;
-	}
-
-	public UtenteRuolo getRuolo() {
+	public Ruolo getRuolo() {
 		return ruolo;
 	}
 
-	public void setRuolo(UtenteRuolo ruolo) {
+	public void setRuolo(Ruolo ruolo) {
 		this.ruolo = ruolo;
+	}
+
+	public List<Ristorante> getRistoranti() {
+		return ristoranti;
+	}
+
+	public void setRistoranti(List<Ristorante> ristoranti) {
+		this.ristoranti = ristoranti;
 	}
 	
 }

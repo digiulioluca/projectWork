@@ -41,7 +41,6 @@ public class Ristorante {
 	private String indirizzo;
 	
 	@Column(nullable = false, unique = true)
-	@Size(min = 10, max=10)
 	private int numeroTelefono;
 	
 	@Column(nullable = false, unique = true)
@@ -65,36 +64,21 @@ public class Ristorante {
 	//relazione molti a uno con tabella Utente
 	@ManyToOne
 	@JoinColumn(name="utente_id")
-	@JsonBackReference
+	@JsonBackReference("ristoranteUtente")
 	private Utente utente;
 	
 	//relazione uno a molti con tabella Menu
-	@OneToMany
-	@JsonManagedReference
+	@OneToMany(mappedBy="ristorante")
+	@JsonManagedReference("ristoranteMenu")
 	private List<Menu> menu;
 	
 	//relazione uno a molti con tabella Ordine
-	@OneToMany
-	@JsonManagedReference
+	@OneToMany(mappedBy="ristorante")
+	@JsonManagedReference("ristoranteOrdine")
 	private List<Ordine> ordini;
 	
 	//costruttori
 	public Ristorante() {}
-	
-	public Ristorante(Long id, String nome, String indirizzo, String email,
-			int numeroTelefono, String partitaIva, String citta, String provincia, Tipo tipo,
-			String descrizione) {
-		this.id=id;
-		this.nome=nome;
-		this.indirizzo=indirizzo;
-		this.email=email;
-		this.numeroTelefono=numeroTelefono;
-		this.partitaIva=partitaIva;
-		this.citta=citta;
-		this.provincia=provincia;
-		this.tipo=tipo;
-		this.descrizione=descrizione;
-	}
 
 	public Long getId() {
 		return id;
@@ -160,6 +144,22 @@ public class Ristorante {
 		this.provincia = provincia;
 	}
 
+	public String getDescrizione() {
+		return descrizione;
+	}
+
+	public void setDescrizione(String descrizione) {
+		this.descrizione = descrizione;
+	}
+
+	public Tipo getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(Tipo tipo) {
+		this.tipo = tipo;
+	}
+
 	public Utente getUtente() {
 		return utente;
 	}
@@ -184,20 +184,4 @@ public class Ristorante {
 		this.ordini = ordini;
 	}
 
-	public String getDescrizione() {
-		return descrizione;
-	}
-
-	public void setDescrizione(String descrizione) {
-		this.descrizione = descrizione;
-	}
-
-	public Tipo getTipo() {
-		return tipo;
-	}
-
-	public void setTipo(Tipo tipo) {
-		this.tipo = tipo;
-	}
-	
 }

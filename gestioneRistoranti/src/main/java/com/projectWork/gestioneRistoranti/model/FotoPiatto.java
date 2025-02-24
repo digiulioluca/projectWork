@@ -7,6 +7,7 @@ package com.projectWork.gestioneRistoranti.model;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name="foto_piatto")

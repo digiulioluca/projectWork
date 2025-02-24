@@ -1,86 +1,128 @@
 package com.projectWork.gestioneRistoranti.controller;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.projectWork.gestioneRistoranti.auth.TokenService;
 import com.projectWork.gestioneRistoranti.model.Utente;
-import com.projectWork.gestioneRistoranti.model.UtenteRuolo;
 import com.projectWork.gestioneRistoranti.repository.UtenteRepository;
-import com.projectWork.gestioneRistoranti.repository.UtenteRuoloRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/utente")
 @CrossOrigin(origins = {})
 public class UtenteController {
-
-	@Autowired
-	private UtenteRuoloRepository utenteRuoloRepository;
+	
 	@Autowired
 	private UtenteRepository utenteRepository;
 	
 	@Autowired
 	private TokenService tokenService;
 	
-	//metodo per aggiungere un utente
+	/* Metodo per aggiungere un utente
+	 * 
+	 * @param	oggetto di tipo Utente da aggiungere
+	 * @param	file per permettere l'inserimento dell'immagine (con possibile eccezione indicata nella firma del metodo)
+	 * @return -> messaggio, in caso di successo
+	*/
 	@PostMapping("/aggiungi")
-	public Object aggiungiUtente(@RequestBody Utente nuovoUtente ,@RequestBody UtenteRuolo utenteRuolo, HttpServletRequest request, HttpServletResponse response) {
-    	// Verifica l'autenticazione
-		if(Ruolo == "RISTORATORE") {
-			
-		}
-		utenteRuolo.setRuolo(Ruolo.RISTORATORE);
-    	Utente authUtente = getAuthenticatedUtente(request);
-        if (authUtente == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return Collections.singletonMap("message", "Non autorizzato");
-        }
-        // Verifica che l'utente abbia il ruolo "admin"
-        if (!"admin".equals(authUtente.getRuolo().toString())) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return Collections.singletonMap("message", "Accesso negato: solo admin può aggiungere utenti");
-        }
-        // Salva il nuovo utente nel database
-        nuovoUtente.setRuolo("user"));
-        nuovoUtente.setEmail(nuovoUtente.getEmail());
-        utenteRepository.save(nuovoUtente);
-        return Collections.singletonMap("message", "Utente aggiunto con successo");
+	public Object addUtente(Utente nuovoUtente, @RequestParam("file") MultipartFile file) throws IOException {
+		nuovoUtente.setFoto(file.getBytes());
+		nuovoUtente.setNomeFoto(file.getOriginalFilename());
+		utenteRepository.save(nuovoUtente);		
+	    return Collections.singletonMap("message", "Utente aggiunto con successo!");
     }
-	//metodo per leggere dettagli di un singolo utente
+	
+	/*	Metodo per restituire i dati di un singolo utente
+	 *  
+	 *  @param id		per ricercare l'utente una volta ottenute le sue info dal token
+	 * 	@param request	Oggetto per leggere l'header "Authorization"
+	 *	@param response	Oggetto per impostare lo status in caso di errore
+	 *	@return	L'oggetto Utente, se i controlli precedenti vengono passati (false)	 
+	 */
 	@GetMapping("/{id}")
-    public Object getUtenteDetails(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
-    	 // Ottiene l'utente autenticato dal token
-    	Utente authUtente = getAuthenticatedUtente(request);
-        if (authUtente == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+	public Object getUtenteDetails(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
+		// otteniamo l'utente autenticato dal token
+		Utente authUtente = getAuthenticatedUtente(request);
+		if (authUtente == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return Collections.singletonMap("message", "Non autorizzato");
-        }
-
-        // Cerca l'utente per ID
-        Optional<Utente> utenteOpt = utenteRepository.findById(id);
-        if (!utenteOpt.isPresent()) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return Collections.singletonMap("message", "Utente non trovato");
-        }
-        return utenteOpt.get();
-    }
+		}
+		
+		// attraverso l'id cerchiamo l'utente
+		Optional<Utente> utenteOpt = utenteRepository.findById(id);
+		if (!utenteOpt.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return Collections.singletonMap("message", "Utente non trovato");
+		}
+		
+		// con il metodo get ritorniamo l'oggetto Utente
+		return utenteOpt.get();
+	}
+	
+	/* Metodo per aggiornare i dati dell'utente
+	 * 
+	 * @param	id	->	id dell'utente di cui andremo a modificare i dati
+	 * @param	utenteMod	->	oggetto con i nuovi dati
+	 * @param	request
+	 * @param	response
+	 * @return	in caso di successo, il 'nuovo' oggetto utente; in caso contrario errore
+	 */
+	@PutMapping("/{id}")
+	public Object updateUtente(@PathVariable Long id, @RequestBody Utente utenteMod, HttpServletRequest request, HttpServletResponse response, @RequestParam("file") MultipartFile file) throws IOException {
+		Utente authUtente = getAuthenticatedUtente(request);
+		if(authUtente == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non autorizzato");
+		}
+		
+		Optional<Utente> utenteOpt = utenteRepository.findById(id);
+		if (!utenteOpt.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return Collections.singletonMap("message", "Utente non trovato");
+		}
+		
+		Utente utente = utenteOpt.get();
+		utente.setNome(utenteMod.getNome());
+		utente.setCognome(utenteMod.getCognome());
+		utente.setEmail(utenteMod.getEmail());
+		utente.setPassword(utenteMod.getPassword());
+		utente.setNumeroCarta(utenteMod.getNumeroCarta());
+		utente.setFoto(file.getBytes());
+		utente.setNomeFoto(file.getOriginalFilename());
+		
+		return utenteRepository.save(utente);
+		
+	}
+	
+	/* 
+	 * Metodo per cancellare l'utente
+	 */
+	@DeleteMapping("/{id}")
+	public Object deleteUtente(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
+		Utente authUtente = getAuthenticatedUtente(request);
+		if(authUtente == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non autorizzato");
+		}
+		
+		Optional<Utente> utenteOpt = utenteRepository.findById(id);
+		if(!utenteOpt.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return Collections.singletonMap("message", "Utente non trovato");
+		}
+		
+		Utente utente = utenteOpt.get();
+		utenteRepository.delete(utente);
+		return Collections.singletonMap("message", "Utente cancellato con successo");
+	}
+	
+	
 	/**
      * Metodo di utilità per estrarre il token di autenticazione dall'header "Authorization".
      * Il token viene inviato nel formato "Bearer <token>".

@@ -26,21 +26,16 @@ public class Menu {
 	//relazioni molti a uno con tabella Ristorante
 	@ManyToOne
 	@JoinColumn(name="ristorante_id")
-	@JsonBackReference
+	@JsonBackReference("ristoranteMenu")
 	private Ristorante ristorante;
 	
 	// relazione uno a molti con tabella Categoria 
 	@OneToMany(mappedBy="menu")
-	@JsonManagedReference
+	@JsonManagedReference("menuCategoria")
 	private List<Categoria> categorie;
 	
 	//costruttori
 	public Menu() {}
-	
-	public Menu(Long id,String nome) {
-		this.id=id;
-		this.nome=nome;
-	}
 
 	public Long getId() {
 		return id;
@@ -73,4 +68,6 @@ public class Menu {
 	public void setCategorie(List<Categoria> categorie) {
 		this.categorie = categorie;
 	}
+	
+	
 }
