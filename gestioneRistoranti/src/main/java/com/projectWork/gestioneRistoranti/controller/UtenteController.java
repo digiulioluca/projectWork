@@ -97,6 +97,68 @@ public class UtenteController {
 		utente.setNomeFoto(file.getOriginalFilename());
 		
 		return utenteRepository.save(utente);
+	
+	}
+	
+	/*
+	 * Metodo per ottenere tramite l'id di un utente (ristorante) la lista delle sue attività
+	 * 
+	 * @param	id	->	id dell'utente
+	 * @param	request
+	 * @param	response
+	 * @return	lista completa dei ristoranti del ristoratore (se presenti)
+	 */
+	@GetMapping("/{id}/ristoranti")
+	public Object getAllRistorantiByUtente(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
+		Utente authUtente = getAuthenticatedUtente(request);
+		if(authUtente == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non autorizzato");
+		}
+		
+		// dopo aver verificato l'autenticazione, controlliamo che l'utente abbia il ruolo 'ristoratore'
+		if(!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non hai i permessi per accaedere");
+		}
+
+		Optional<Utente> utenteOpt = utenteRepository.findById(id);
+		if (!utenteOpt.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return Collections.singletonMap("message", "Utente non trovato");
+		}
+		
+		Utente u = utenteOpt.get();
+		
+		return u.getRistoranti();
+		
+	}
+	
+	/*
+	 * Metodo per ottenere tramite l'id di un utente la lista completa dei suoi ordini
+	 * 
+	 * @param	id	->	id dell'utente
+	 * @param	request
+	 * @param	response
+	 * @return	lista completa degli ordini
+	 */
+	@GetMapping("/{id}/ordini")
+	public Object getAllOrdiniByUtente(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
+		Utente authUtente = getAuthenticatedUtente(request);
+		if(authUtente == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non autorizzato");
+		}
+		
+		Optional<Utente> utenteOpt = utenteRepository.findById(id);
+		if (!utenteOpt.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return Collections.singletonMap("message", "Utente non trovato");
+		}
+		
+		Utente u = utenteOpt.get();
+		
+		return u.getOrdini();
 		
 	}
 	
