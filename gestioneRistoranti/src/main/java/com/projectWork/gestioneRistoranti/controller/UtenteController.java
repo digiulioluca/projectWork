@@ -140,7 +140,7 @@ public class UtenteController {
 	 * @param	id	->	id dell'utente
 	 * @param	request
 	 * @param	response
-	 * @return	lista completa degli ordini
+	 * @return	lista completa degli ordini effettuati dall'utente
 	 */
 	@GetMapping("/{id}/ordini")
 	public Object getAllOrdiniByUtente(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
