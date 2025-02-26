@@ -13,9 +13,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.projectWork.gestioneRistoranti.auth.TokenService;
 import com.projectWork.gestioneRistoranti.model.Categoria;
+import com.projectWork.gestioneRistoranti.model.Menu;
 import com.projectWork.gestioneRistoranti.model.Utente;
 import com.projectWork.gestioneRistoranti.repository.CategoriaRepository;
+import com.projectWork.gestioneRistoranti.repository.MenuRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,16 +30,44 @@ public class CategoriaController {
 
 	@Autowired
 	private CategoriaRepository categoriaRepository;
+	
+	@Autowired
+	private TokenService tokenService;
+	
+	@Autowired
+	private MenuRepository menuRepository;
 
 	/*
-	 * Metodo per creare una Categoria
+	 * Metodo per creare una Categoria (simile al createMenu presente nel MenuController)
 	 * 
-	 * @param oggetto di tipo Categoria da aggiungere
+	 * @param 	oggetto di tipo Categoria da aggiungere
+	 * @param	id del menù di riferimento
+	 * @param	response
+	 * @param	request
 	 * 
-	 * @return -> messaggio, in caso di successo
+	 * @return	messaggio con esito
 	 */
-	@PostMapping
-	public Object createCategoria(Categoria nuovaCategoria) {
+	@PostMapping("/{id}/nuovo")
+	public Object createCategoria(@RequestBody Categoria nuovaCategoria, @PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
+		//authentication
+		Utente authUtente = getAuthenticatedUtente(request);
+		if(authUtente==null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non autorizzato");
+		}
+		
+		if(!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non hai i permessi per effettuare quest'operazione");
+		}
+		
+		Optional<Menu> findMenu = menuRepository.findById(id);
+		if(!findMenu.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return Collections.singletonMap("message", "Menù non trovato");
+		}
+		
+		nuovaCategoria.setMenu(findMenu.get());
 		categoriaRepository.save(nuovaCategoria);
 		return Collections.singletonMap("message", "Categoria aggiunto con successo!");
 	}
@@ -44,16 +76,14 @@ public class CategoriaController {
 	 * Metodo per restituire i dati di una singola categoria
 	 * 
 	 * @param id per ricercare la categoria una volta ottenute le sue info dal token
-	 * 
 	 * @param request Oggetto per leggere l'header "Authorization"
-	 * 
 	 * @param response Oggetto per impostare lo status in caso di errore
 	 * 
 	 * @return L'oggetto Categoria, se i controlli precedenti vengono passati
 	 * (false)
 	 */
 	@GetMapping("/{id}")
-	public Object getCategoria(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
+	public Object getCategoriaById(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
 		Utente authUtente = getAuthenticatedUtente(request);
 		if (authUtente == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -71,7 +101,10 @@ public class CategoriaController {
 		return categoria.get();
 	}
 
-	// metodo che restituisce la lista completa dei menu.
+	/* Metodo che restituisce la lista completa delle categorie (per ora non necessario).
+	 *	
+	 * @return	Lista con tutte le categorie
+	 */
 	@GetMapping
 	public List<Categoria> getAllCategoria() {
 		return categoriaRepository.findAll();
@@ -81,11 +114,8 @@ public class CategoriaController {
 	 * Metodo per aggiornare i dati della categoria
 	 * 
 	 * @param id -> id della categoria di cui andremo a modificare i dati
-	 * 
 	 * @param categoriaDetails -> oggetto con i nuovi dati
-	 * 
 	 * @param request
-	 * 
 	 * @param response
 	 * 
 	 * @return in caso di successo, il 'nuovo' oggetto categoria; in caso contrario
@@ -100,11 +130,18 @@ public class CategoriaController {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return Collections.singletonMap("message", "Non autorizzato");
 		}
+		
+		if(!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non hai i permessi per effettuare quest'operazione");
+		}
+		
 		Optional<Categoria> categoria = categoriaRepository.findById(id);
-		if (categoria.isPresent() && !"RISTORATORE".equals(authUtente.getRuolo().toString())) {
+		if (!categoria.isPresent()) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return Collections.singletonMap("message", "Categoria non trovata");
 		}
+		
 		Categoria updatedCategoria = categoria.get();
 		updatedCategoria.setNome(categoriaDetails.getNome());
 
@@ -112,14 +149,15 @@ public class CategoriaController {
 
 	}
 
-	// metodo per prendere autenticazione dell'utente
-	private Utente getAuthenticatedUtente(HttpServletRequest request) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+    
 	/*
 	 * Metodo per cancellare una categoria
+	 * 
+	 * @param	id della categoria da cancellare
+	 * @param	request
+	 * @param	response
+	 * 
+	 * @return	messaggio di conferma in caso di successo
 	 */
 	@DeleteMapping("/{id}")
 	public Object deleteCategoria(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
@@ -128,12 +166,62 @@ public class CategoriaController {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return Collections.singletonMap("message", "Non autorizzato");
 		}
+		
+		if(!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non hai i permessi per effettuare quest'operazione");
+		}
+		
 		Optional<Categoria> categoria = categoriaRepository.findById(id);
-		if (categoria.isPresent() && !"RISTORATORE".equals(authUtente.getRuolo().toString())) {
+		if (!categoria.isPresent()) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			return Collections.singletonMap("message", "Categoria non trovata");
+			return Collections.singletonMap("message", "Menu non trovato");
 		}
 		categoriaRepository.delete(categoria.get());
-		return Collections.singletonMap("message", "Categoria cancellata con successo");
+		return Collections.singletonMap("message", "Menu cancellato con successo");
 	}
+	
+	/* Metodo che ritorna la lista di tutte le categorie di un singolo menù
+	 * 
+	 * @param	id del menù
+	 * @response
+	 * 
+	 * @return	La lista di categorie (o messaggio di errore)
+	*/
+	@GetMapping("/{id}/piatti")
+	public Object getAllPiattiByCategoria (@PathVariable Long id, HttpServletResponse response) {
+		Optional<Categoria> categoriaOpt = categoriaRepository.findById(id);
+		if(!categoriaOpt.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return Collections.singletonMap("message", "Menù non trovato");
+		}
+		
+		Categoria c = categoriaOpt.get();
+		return c.getPiatti();
+	}
+
+	/**
+     * Metodo di utilità per estrarre il token di autenticazione dall'header "Authorization".
+     * Il token viene inviato nel formato "Bearer <token>".
+     *
+     * @param request Oggetto HttpServletRequest contenente gli header della richiesta
+     * @return L'oggetto AuthUser associato al token, oppure null se il token non è presente o non valido
+     */
+    private Utente getAuthenticatedUtente(HttpServletRequest request) {
+        // Legge l'header "Authorization"
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && !authHeader.isEmpty()) {
+            String token;
+            // Se il token è inviato come "Bearer <token>", lo estrae
+            if (authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+            } else {
+                token = authHeader;
+            }
+            // Usa il TokenService per ottenere l'utente associato al token
+            return tokenService.getAuthUtente(token);
+        }
+        // Se non c'è header "Authorization", restituisce null
+        return null;
+    }
 }

@@ -41,7 +41,7 @@ public class Ristorante {
 	private String indirizzo;
 	
 	@Column(nullable = false, unique = true)
-	private int numeroTelefono;
+	private String numeroTelefono;
 	
 	@Column(nullable = false, unique = true)
 	private String email;
@@ -104,11 +104,11 @@ public class Ristorante {
 		this.indirizzo = indirizzo;
 	}
 
-	public int getNumeroTelefono() {
+	public String getNumeroTelefono() {
 		return numeroTelefono;
 	}
 
-	public void setNumeroTelefono(int numeroTelefono) {
+	public void setNumeroTelefono(String numeroTelefono) {
 		this.numeroTelefono = numeroTelefono;
 	}
 
