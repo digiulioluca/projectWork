@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.projectWork.gestioneRistoranti.auth.TokenService;
+import com.projectWork.gestioneRistoranti.model.Categoria;
 import com.projectWork.gestioneRistoranti.model.Piatto;
 import com.projectWork.gestioneRistoranti.model.Utente;
+import com.projectWork.gestioneRistoranti.repository.CategoriaRepository;
 import com.projectWork.gestioneRistoranti.repository.PiattoRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,40 +31,79 @@ public class PiattoController {
 	@Autowired
 	private PiattoRepository piattoRepository;
 
+	@Autowired
+	private TokenService tokenService;
+
+	@Autowired
+	private CategoriaRepository categoriaRepository;
+
 	// metodo che restituisce la lista completa dei piatti.
 	@GetMapping
-	public List<Piatto> LeggiPiatti() {
+	public List<Piatto> getAllPiatti() {
 		return piattoRepository.findAll();
 	}
 
 	/*
 	 * Metodo per creare un piatto
 	 * 
-	 * @param oggetto di tipo Piatto da aggiungere
+	 * @param 	oggetto di tipo Piatto da aggiungere
+	 * @param	id della categoria di riferimento
+	 * @param	response
+	 * @param	request
 	 * 
 	 * @return -> messaggio, in caso di successo
 	 */
-	@PostMapping
-	public Object createPiatto(@RequestBody Piatto nuovoPiatto) {
+	@PostMapping("/{id}/nuovo")
+	public Object createPiatto(@RequestBody Piatto nuovoPiatto, @PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
+		// authentication
+		Utente authUtente = getAuthenticatedUtente(request);
+		if (authUtente == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non autorizzato");
+		}
+
+		if (!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non hai i permessi per effettuare quest'operazione");
+		}
+		
+		Optional<Categoria> findCat = categoriaRepository.findById(id);
+		if(!findCat.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return Collections.singletonMap("messsage", "Categoria non trovata");
+		}
+		
+		nuovoPiatto.setCategoria(findCat.get());
 		piattoRepository.save(nuovoPiatto);
 		return Collections.singletonMap("message", "Piatto aggiunto con successo!");
 	}
 
-	// metodo per restituire i dati di un singolo piatto.
+	/* Metodo per restituire i dati di un singolo piatto
+	 * 
+	 * @param 	id del piatto selezionato
+	 * @param	response
+	 * 
+	 * @return	oggetto 
+	 * 
+	*/
 	@GetMapping("/{id}")
-	public Optional<Piatto> leggiPiattoById(@PathVariable Long id) {
-		return piattoRepository.findById(id);
+	public Object leggiPiattoById(@PathVariable Long id, HttpServletResponse response) {
+		Optional<Piatto> ricerca = piattoRepository.findById(id);
+		if (!ricerca.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return Collections.singletonMap("message", "Categoria non trovata");
+		}
+
+		// con il metodo get ritorniamo l'oggetto Categoria
+		return ricerca.get();
 	}
 
 	/*
 	 * Metodo per aggiornare i dati del piatto
 	 * 
 	 * @param id -> id del piatto di cui andremo a modificare i dati
-	 * 
 	 * @param piattoDetails -> oggetto con i nuovi dati
-	 * 
 	 * @param request
-	 * 
 	 * @param response
 	 * 
 	 * @return in caso di successo, il 'nuovo' oggetto piatto; in caso contrario
@@ -75,11 +117,18 @@ public class PiattoController {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return Collections.singletonMap("message", "Non autorizzato");
 		}
+		
+		if (!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non hai i permessi per effettuare quest'operazione");
+		}
+		
 		Optional<Piatto> piatto = piattoRepository.findById(id);
-		if (!piatto.isPresent() && !"RISTORATORE".equals(authUtente.getRuolo().toString())) {
+		if (!piatto.isPresent()) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return Collections.singletonMap("message", "Piatto non trovato");
 		}
+		
 		Piatto p = piatto.get();
 		p.setNome(piattoDetails.getNome());
 		p.setCosto(piattoDetails.getCosto());
@@ -88,12 +137,6 @@ public class PiattoController {
 		p.setCategoria(piattoDetails.getCategoria());
 
 		return piattoRepository.save(p);
-	}
-
-	// metodo per prendere autenticazione dell'utente
-	private Utente getAuthenticatedUtente(HttpServletRequest request) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	/*
@@ -106,12 +149,45 @@ public class PiattoController {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return Collections.singletonMap("message", "Non autorizzato");
 		}
+		
+		if (!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non hai i permessi per effettuare quest'operazione");
+		}
+		
 		Optional<Piatto> p = piattoRepository.findById(id);
-		if (p.isPresent() && !"RISTORATORE".equals(authUtente.getRuolo().toString())) {
+		if (!p.isPresent()) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return Collections.singletonMap("message", "Piatto non trovato");
 		}
 		piattoRepository.delete(p.get());
 		return Collections.singletonMap("message", "Piatto cancellato con successo");
+	}
+
+	/**
+	 * Metodo di utilità per estrarre il token di autenticazione dall'header
+	 * "Authorization". Il token viene inviato nel formato "Bearer <token>".
+	 *
+	 * @param request Oggetto HttpServletRequest contenente gli header della
+	 *                richiesta
+	 * @return L'oggetto AuthUser associato al token, oppure null se il token non è
+	 *         presente o non valido
+	 */
+	private Utente getAuthenticatedUtente(HttpServletRequest request) {
+		// Legge l'header "Authorization"
+		String authHeader = request.getHeader("Authorization");
+		if (authHeader != null && !authHeader.isEmpty()) {
+			String token;
+			// Se il token è inviato come "Bearer <token>", lo estrae
+			if (authHeader.startsWith("Bearer ")) {
+				token = authHeader.substring(7);
+			} else {
+				token = authHeader;
+			}
+			// Usa il TokenService per ottenere l'utente associato al token
+			return tokenService.getAuthUtente(token);
+		}
+		// Se non c'è header "Authorization", restituisce null
+		return null;
 	}
 }

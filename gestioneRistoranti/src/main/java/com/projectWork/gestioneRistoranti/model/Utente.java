@@ -50,9 +50,9 @@ public class Utente{
 	private String password;
 	
 	@Column(nullable = false, name="numero_carta")
-	/*@Min(1000000000000000L) // Valore minimo: 16 cifre
-	@Max(9999999999999999L) // Valore massimo: 16 cifre*/
-	private String numeroCarta;
+	@Min(1000000000000000L) // Valore minimo: 16 cifre
+	@Max(9999999999999999L) // Valore massimo: 16 cifre
+	private Long numeroCarta;
 	
 	/* relazione uno a molti con tabella ordini. Attraverso
 	 * la seconda annotation evitiamo la ricorsività da entrambi i lati.
@@ -64,16 +64,7 @@ public class Utente{
 	// attributo 'token' per il logi-in
 	private String token;
 	
-	// nome foto
-	@Column(name = "nome_foto", nullable=true)
-	private String nomeFoto;
-		
-	// annotation per la gestione dei large object (foto nel nostro caso)
-	@Lob
-	@Column(length=100000000)
-	private byte[] foto;
-	
-	@Column(nullable=true)
+	@Column(nullable=false)
 	private Ruolo ruolo;
 	
 	@OneToMany(mappedBy="utente")
@@ -123,11 +114,11 @@ public class Utente{
 		this.password = password;
 	}
 
-	public String getNumeroCarta() {
+	public Long getNumeroCarta() {
 		return numeroCarta;
 	}
 
-	public void setNumeroCarta(String numeroCarta) {
+	public void setNumeroCarta(Long numeroCarta) {
 		this.numeroCarta = numeroCarta;
 	}
 
@@ -146,23 +137,7 @@ public class Utente{
 	public void setToken(String token) {
 		this.token = token;
 	}
-
-	public String getNomeFoto() {
-		return nomeFoto;
-	}
-
-	public void setNomeFoto(String nomeFoto) {
-		this.nomeFoto = nomeFoto;
-	}
-
-	public byte[] getFoto() {
-		return foto;
-	}
-
-	public void setFoto(byte[] foto) {
-		this.foto = foto;
-	}
-
+	
 	public Ruolo getRuolo() {
 		return ruolo;
 	}

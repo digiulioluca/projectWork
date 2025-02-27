@@ -8,7 +8,6 @@ package com.projectWork.gestioneRistoranti.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import jakarta.validation.constraints.*;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -28,10 +27,6 @@ public class Ordine {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
-	
-	// numero ordine che andremo a generare; univoco
-	@Column(nullable=false, name="numero_ordine", unique=true, precision = 10)
-	private Long numeroOrdine;
 	
 	// campo per definire
 	@Column(nullable=false)
@@ -72,14 +67,6 @@ public class Ordine {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public Long getNumeroOrdine() {
-		return numeroOrdine;
-	}
-
-	public void setNumeroOrdine(Long numeroOrdine) {
-		this.numeroOrdine = numeroOrdine;
 	}
 
 	public Status getStatus() {

@@ -41,7 +41,7 @@ public class Ristorante {
 	private String indirizzo;
 	
 	@Column(nullable = false, unique = true)
-	private int numeroTelefono;
+	private String numeroTelefono;
 	
 	@Column(nullable = false, unique = true)
 	private String email;
@@ -60,6 +60,16 @@ public class Ristorante {
 	
 	@Column(nullable = false)
 	private Tipo tipo;
+	
+	// nome foto
+	@Column(name = "nome_foto", nullable=true)
+	private String nomeFoto;
+		
+	// annotation per la gestione dei large object (foto nel nostro caso)
+	@Lob
+	@Column(length=100000000)
+	private byte[] foto;
+	
 	
 	//relazione molti a uno con tabella Utente
 	@ManyToOne
@@ -104,11 +114,11 @@ public class Ristorante {
 		this.indirizzo = indirizzo;
 	}
 
-	public int getNumeroTelefono() {
+	public String getNumeroTelefono() {
 		return numeroTelefono;
 	}
 
-	public void setNumeroTelefono(int numeroTelefono) {
+	public void setNumeroTelefono(String numeroTelefono) {
 		this.numeroTelefono = numeroTelefono;
 	}
 
@@ -184,4 +194,21 @@ public class Ristorante {
 		this.ordini = ordini;
 	}
 
+	public String getNomeFoto() {
+		return nomeFoto;
+	}
+
+	public void setNomeFoto(String nomeFoto) {
+		this.nomeFoto = nomeFoto;
+	}
+
+	public byte[] getFoto() {
+		return foto;
+	}
+
+	public void setFoto(byte[] foto) {
+		this.foto = foto;
+	}
+
+	
 }
