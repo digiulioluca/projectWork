@@ -1,19 +1,15 @@
 package com.projectWork.gestioneRistoranti.controller;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.projectWork.gestioneRistoranti.auth.TokenService;
 import com.projectWork.gestioneRistoranti.model.Ristorante;
@@ -41,7 +37,7 @@ public class RistoranteController {
 	 * @return -> messaggio, in caso di successo
 	 */
 	@PostMapping
-	public Object createRistorante(@RequestBody Ristorante nuovoRistorante, HttpServletRequest request, HttpServletResponse response) {
+	public Object createRistorante(@RequestBody Ristorante nuovoRistorante, HttpServletRequest request, HttpServletResponse response, @RequestParam("file") MultipartFile file) throws IOException {
 		Utente authUtente = getAuthenticatedUtente(request);
 		if (authUtente == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -53,6 +49,8 @@ public class RistoranteController {
 			return Collections.singletonMap("message", "Non hai i permessi per effettuare questa operazione, cambiare il tipo di account");
 		}
 		
+		nuovoRistorante.setFoto(file.getBytes());
+		nuovoRistorante.setNomeFoto(file.getOriginalFilename());
 		nuovoRistorante.setUtente(authUtente);
 		ristoranteRepository.save(nuovoRistorante);
 		return Collections.singletonMap("message", "Ristorante aggiunto con successo!");
@@ -118,7 +116,7 @@ public class RistoranteController {
 
 	@PutMapping("/{id}")
 	public Object updateRistorante(@PathVariable Long id, @RequestBody Ristorante ristoranteDetails,
-			HttpServletRequest request, HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response, @RequestParam("file") MultipartFile file) throws IOException {
 
 		Utente authUtente = getAuthenticatedUtente(request);
 		if (authUtente == null) {
@@ -143,6 +141,8 @@ public class RistoranteController {
 		updatedRistorante.setDescrizione(ristoranteDetails.getDescrizione());
 		updatedRistorante.setPartitaIva(ristoranteDetails.getPartitaIva());
 		updatedRistorante.setIndirizzo(ristoranteDetails.getIndirizzo());
+		updatedRistorante.setFoto(file.getBytes());
+		updatedRistorante.setNomeFoto(file.getOriginalFilename());
 		updatedRistorante.setCitta(ristoranteDetails.getCitta());
 		updatedRistorante.setNumeroTelefono(ristoranteDetails.getNumeroTelefono());
 		return ristoranteRepository.save(updatedRistorante);
@@ -200,5 +200,23 @@ public class RistoranteController {
 		return Collections.singletonMap("message", "Ristorante cancellato con successo");
 
 	}
+	
+	/* Metodo per effettuare una ricerca tra i vari ristoranti
+	 * 
+	 * @param	descrizione
+	 * 
+	 * @return	stampa dei risultati (o messaggio 204 nel caso in cui la lista fosse vuota)
+	*/
+	@GetMapping("/ricerca")
+    public ResponseEntity<?> ricercaRistorante(@RequestParam("descrizione") String descrizione) {
+        List<Ristorante> risultati = ristoranteRepository.findByDescrizioneContaining(descrizione);
+
+        if (risultati.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(Collections.singletonMap("message", "Nessun ristorante trovato"));
+        }
+
+        return ResponseEntity.ok(risultati);
+    }
 
 }

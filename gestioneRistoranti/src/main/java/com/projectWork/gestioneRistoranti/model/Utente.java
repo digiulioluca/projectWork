@@ -64,15 +64,6 @@ public class Utente{
 	// attributo 'token' per il logi-in
 	private String token;
 	
-	// nome foto
-	@Column(name = "nome_foto", nullable=true)
-	private String nomeFoto;
-		
-	// annotation per la gestione dei large object (foto nel nostro caso)
-	@Lob
-	@Column(length=100000000)
-	private byte[] foto;
-	
 	@Column(nullable=false)
 	private Ruolo ruolo;
 	
@@ -146,23 +137,7 @@ public class Utente{
 	public void setToken(String token) {
 		this.token = token;
 	}
-
-	public String getNomeFoto() {
-		return nomeFoto;
-	}
-
-	public void setNomeFoto(String nomeFoto) {
-		this.nomeFoto = nomeFoto;
-	}
-
-	public byte[] getFoto() {
-		return foto;
-	}
-
-	public void setFoto(byte[] foto) {
-		this.foto = foto;
-	}
-
+	
 	public Ruolo getRuolo() {
 		return ruolo;
 	}

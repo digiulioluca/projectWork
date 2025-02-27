@@ -61,6 +61,16 @@ public class Ristorante {
 	@Column(nullable = false)
 	private Tipo tipo;
 	
+	// nome foto
+	@Column(name = "nome_foto", nullable=true)
+	private String nomeFoto;
+		
+	// annotation per la gestione dei large object (foto nel nostro caso)
+	@Lob
+	@Column(length=100000000)
+	private byte[] foto;
+	
+	
 	//relazione molti a uno con tabella Utente
 	@ManyToOne
 	@JoinColumn(name="utente_id")
@@ -184,4 +194,21 @@ public class Ristorante {
 		this.ordini = ordini;
 	}
 
+	public String getNomeFoto() {
+		return nomeFoto;
+	}
+
+	public void setNomeFoto(String nomeFoto) {
+		this.nomeFoto = nomeFoto;
+	}
+
+	public byte[] getFoto() {
+		return foto;
+	}
+
+	public void setFoto(byte[] foto) {
+		this.foto = foto;
+	}
+
+	
 }

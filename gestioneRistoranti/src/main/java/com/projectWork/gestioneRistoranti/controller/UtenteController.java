@@ -5,12 +5,8 @@ import com.projectWork.gestioneRistoranti.model.Utente;
 import com.projectWork.gestioneRistoranti.repository.UtenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-
-import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -23,20 +19,6 @@ public class UtenteController {
 	
 	@Autowired
 	private TokenService tokenService;
-	
-	/* Metodo per aggiungere un utente
-	 * 
-	 * @param	oggetto di tipo Utente da aggiungere
-	 * @param	file per permettere l'inserimento dell'immagine (con possibile eccezione indicata nella firma del metodo)
-	 * @return -> messaggio, in caso di successo
-	*/
-	@PostMapping("/aggiungi")
-	public Object addUtente(Utente nuovoUtente, @RequestParam("file") MultipartFile file) throws IOException {
-		nuovoUtente.setFoto(file.getBytes());
-		nuovoUtente.setNomeFoto(file.getOriginalFilename());
-		utenteRepository.save(nuovoUtente);		
-	    return Collections.singletonMap("message", "Utente aggiunto con successo!");
-    }
 	
 	/*	Metodo per restituire i dati di un singolo utente
 	 *  
@@ -74,7 +56,7 @@ public class UtenteController {
 	 * @return	in caso di successo, il 'nuovo' oggetto utente; in caso contrario errore
 	 */
 	@PutMapping("/{id}")
-	public Object updateUtente(@PathVariable Long id, @RequestBody Utente utenteMod, HttpServletRequest request, HttpServletResponse response, @RequestParam("file") MultipartFile file) throws IOException {
+	public Object updateUtente(@PathVariable Long id, @RequestBody Utente utenteMod, HttpServletRequest request, HttpServletResponse response) {
 		Utente authUtente = getAuthenticatedUtente(request);
 		if(authUtente == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -93,8 +75,6 @@ public class UtenteController {
 		utente.setEmail(utenteMod.getEmail());
 		utente.setPassword(utenteMod.getPassword());
 		utente.setNumeroCarta(utenteMod.getNumeroCarta());
-		utente.setFoto(file.getBytes());
-		utente.setNomeFoto(file.getOriginalFilename());
 		
 		return utenteRepository.save(utente);
 	

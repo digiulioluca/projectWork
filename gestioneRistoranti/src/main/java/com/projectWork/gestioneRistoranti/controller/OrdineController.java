@@ -91,6 +91,25 @@ public class OrdineController {
 		return Collections.singletonMap("message", "Status ordine aggiornato");
 	}
 	
+	@DeleteMapping("/{id}")
+	public Object deleteOrdine(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
+		Utente authUtente = getAuthenticatedUtente(request);
+		if(authUtente == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return Collections.singletonMap("message", "Non autorizzato");
+		}
+		
+		Optional<Ordine> ordineOpt = ordineRepository.findById(id);
+		if(!ordineOpt.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return Collections.singletonMap("message", "Utente non trovato");
+		}
+		
+		Ordine ordine = ordineOpt.get();
+		ordineRepository.delete(ordine);
+		return Collections.singletonMap("message", "Ordine cancellato con successo");
+	}
+	
 	/**
      * Metodo di utilità per estrarre il token di autenticazione dall'header "Authorization".
      * Il token viene inviato nel formato "Bearer <token>".
