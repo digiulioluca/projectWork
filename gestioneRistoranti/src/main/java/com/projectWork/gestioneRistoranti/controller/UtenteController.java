@@ -15,7 +15,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/utente")
-@CrossOrigin(origins = {})
+@CrossOrigin(origins = "*")
 public class UtenteController {
 	
 	@Autowired
@@ -31,12 +31,22 @@ public class UtenteController {
 	 * @return -> messaggio, in caso di successo
 	*/
 	@PostMapping("/aggiungi")
-	public Object addUtente(Utente nuovoUtente, @RequestParam("file") MultipartFile file) throws IOException {
-		nuovoUtente.setFoto(file.getBytes());
-		nuovoUtente.setNomeFoto(file.getOriginalFilename());
-		utenteRepository.save(nuovoUtente);		
+	public Object addUtente(@RequestBody Utente nuovoUtente) {
+	    // Controllo che il numero della carta non sia nullo o vuoto
+	    if (nuovoUtente.getNumeroCarta() == null || nuovoUtente.getNumeroCarta().isEmpty()) {
+	        return Collections.singletonMap("message", "Il numero della carta è obbligatorio.");
+	    }
+
+	    // Verifica che il numero della carta sia esattamente di 16 cifre e contenga solo numeri
+	    if (nuovoUtente.getNumeroCarta().length() != 16 || !nuovoUtente.getNumeroCarta().matches("[0-9]+")) {
+	        return Collections.singletonMap("message", "Il numero della carta deve avere esattamente 16 cifre e contenere solo numeri.");
+	    }
+
+	    // Se la validazione va a buon fine, salva l'utente
+	    utenteRepository.save(nuovoUtente);
 	    return Collections.singletonMap("message", "Utente aggiunto con successo!");
-    }
+	}
+
 	
 	/*	Metodo per restituire i dati di un singolo utente
 	 *  

@@ -35,7 +35,7 @@ public class CategoriaController {
 	 * @return -> messaggio, in caso di successo
 	 */
 	@PostMapping
-	public Object createCategoria(Categoria nuovaCategoria) {
+	public Object createCategoria(@RequestBody Categoria nuovaCategoria) {
 		categoriaRepository.save(nuovaCategoria);
 		return Collections.singletonMap("message", "Categoria aggiunto con successo!");
 	}

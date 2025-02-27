@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping("/menu")
+@RequestMapping("/api/menu")
 @CrossOrigin(origins = {})
 public class MenuController {
 
@@ -46,7 +46,7 @@ public class MenuController {
 	 * @return -> messaggio, in caso di successo
 	 */
 	@PostMapping
-	public Object createMenu(Menu nuovoMenu) {
+	public Object createMenu(@RequestBody Menu nuovoMenu) {
 		menuRepository.save(nuovoMenu);
 		return Collections.singletonMap("message", "Menu aggiunto con successo!");
 	}

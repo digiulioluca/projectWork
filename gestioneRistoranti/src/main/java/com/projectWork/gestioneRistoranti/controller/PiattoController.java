@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping("/piatti")
+@RequestMapping("/api/piatto")
 public class PiattoController {
 
 	@Autowired
@@ -44,7 +42,7 @@ public class PiattoController {
 	 * @return -> messaggio, in caso di successo
 	 */
 	@PostMapping
-	public Object createPiatto(Piatto nuovoPiatto) {
+	public Object createPiatto(@RequestBody Piatto nuovoPiatto) {
 		piattoRepository.save(nuovoPiatto);
 		return Collections.singletonMap("message", "Piatto aggiunto con successo!");
 	}
