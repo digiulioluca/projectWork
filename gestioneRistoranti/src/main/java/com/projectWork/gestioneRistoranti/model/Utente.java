@@ -50,9 +50,7 @@ public class Utente{
 	private String password;
 	
 	@Column(nullable = false, name="numero_carta")
-	@Min(1000000000000000L) // Valore minimo: 16 cifre
-	@Max(9999999999999999L) // Valore massimo: 16 cifre
-	private Long numeroCarta;
+	private String numeroCarta;
 	
 	/* relazione uno a molti con tabella ordini. Attraverso
 	 * la seconda annotation evitiamo la ricorsività da entrambi i lati.
@@ -64,7 +62,7 @@ public class Utente{
 	// attributo 'token' per il logi-in
 	private String token;
 	
-	@Column(nullable=false)
+	@Column(nullable=true)
 	private Ruolo ruolo;
 	
 	@OneToMany(mappedBy="utente")
@@ -114,11 +112,11 @@ public class Utente{
 		this.password = password;
 	}
 
-	public Long getNumeroCarta() {
+	public String getNumeroCarta() {
 		return numeroCarta;
 	}
 
-	public void setNumeroCarta(Long numeroCarta) {
+	public void setNumeroCarta(String numeroCarta) {
 		this.numeroCarta = numeroCarta;
 	}
 

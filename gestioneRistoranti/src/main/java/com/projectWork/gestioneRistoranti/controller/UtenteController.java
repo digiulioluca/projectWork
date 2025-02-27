@@ -11,7 +11,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/utente")
-@CrossOrigin(origins = {})
+@CrossOrigin(origins = "*")
 public class UtenteController {
 	
 	@Autowired
@@ -20,6 +20,20 @@ public class UtenteController {
 	@Autowired
 	private TokenService tokenService;
 	
+	// metodo per aggiungere un utente
+	 @PostMapping("/aggiungi")
+	 public Object addUtente(@RequestBody Utente nuovoUtente) {
+		 if (nuovoUtente.getNumeroCarta() == null || nuovoUtente.getNumeroCarta().isEmpty()) {
+			 return Collections.singletonMap("message", "il numero della carta è obbligatorio");
+			 }
+		 if(nuovoUtente.getNumeroCarta().length() !=16 || !nuovoUtente.getNumeroCarta().matches("[0-9]+")) {
+			 return Collections.singletonMap("message", "Il numero della carta deve avere esattamente 16 cifre e contenere solo numeri.");
+			 }
+		 utenteRepository.save(nuovoUtente);
+		 return Collections.singletonMap("message", "Utente aggiunto con successo!");
+		 }
+		 
+	 
 	/*	Metodo per restituire i dati di un singolo utente
 	 *  
 	 *  @param id		per ricercare l'utente una volta ottenute le sue info dal token
