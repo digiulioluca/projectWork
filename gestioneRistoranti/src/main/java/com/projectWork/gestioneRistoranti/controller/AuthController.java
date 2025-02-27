@@ -10,7 +10,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {})
+@CrossOrigin(origins = {}) // Disabilita richieste CORS da origini esterne
 public class AuthController {
 	
 	@Autowired
