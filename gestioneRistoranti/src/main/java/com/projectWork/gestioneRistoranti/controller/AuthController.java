@@ -49,13 +49,14 @@ public class AuthController {
 			result.put("message", "Credenziali non valide");
 			return result;
 		}
-		
+		Utente utente = optionalUtente.get();		//aggiunta
 		// generiamo un token associato all'utente
 		String token = tokenService.generateToken(email);
 		
 		// Costruiamo la risposta
-		result.put("message", "Login effettuato con successo");
+		result.put("message", "Login effettuato con successo"); 
 		result.put("token", token);
+		result.put("ruolo", utente.getRuolo().toString()); //aggiunta
 		
 		return result;
 	}

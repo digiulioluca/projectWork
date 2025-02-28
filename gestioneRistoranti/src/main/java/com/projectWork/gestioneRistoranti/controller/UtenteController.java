@@ -111,9 +111,13 @@ public class UtenteController {
 		}
 		
 		// dopo aver verificato l'autenticazione, controlliamo che l'utente abbia il ruolo 'ristoratore'
-		if(!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
+		/*if(!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return Collections.singletonMap("message", "Non hai i permessi per accaedere");
+		}*/
+		if (authUtente.getRuolo() != Utente.Ruolo.RISTORATORE) {
+		    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		    return Collections.singletonMap("message", "Non hai i permessi per accedere");
 		}
 
 		Optional<Utente> utenteOpt = utenteRepository.findById(id);

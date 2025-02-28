@@ -15,15 +15,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 public class Utente{
 	
 	public enum Ruolo {
-		RISTORATORE,
-		USER;
+		USER,
+		RISTORATORE
 	}
 	
 	// identificativo
@@ -62,7 +62,8 @@ public class Utente{
 	// attributo 'token' per il logi-in
 	private String token;
 	
-	@Column(nullable=true)
+	@Enumerated(EnumType.ORDINAL) //aggiunta
+	@Column(nullable= false)
 	private Ruolo ruolo;
 	
 	@OneToMany(mappedBy="utente")
