@@ -14,43 +14,45 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 public class Piatto {
-	
+
 	// identificativo
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	// campo nome piatto
 	@Column(nullable = false)
 	private String nome;
-	
+
 	// campo costo (numero composto da 5 cifre totali, di cui 2 dopo la virgola)
-	@Column(nullable = false, scale=2)
+	@Column(nullable = false, scale = 2)
 	private Double costo;
-	
+
 	// decrizione piatto. Il campo può contenere max 200 caratteri
-	@Column(length=200)
+	@Column(length = 200)
 	private String descrizione;
-	
-	/*	relazioni tabella:
-	 * 	- uno-a-molti con 'ordine_dettagli'
-	 * 	- uno-a-molti con 'foto_piatto'
-	 */
-	@OneToMany(mappedBy="piatto")
+
+	// nome foto
+	@Column(name = "nome_foto", nullable = true)
+	private String nomeFoto;
+
+	// annotation per la gestione dei large object (foto nel nostro caso)
+	@Lob
+	@Column(length = 100000000)
+	private byte[] foto;
+
+	@OneToMany(mappedBy = "piatto")
 	@JsonManagedReference("ordinePiatto")
 	private List<OrdineDettagli> ordinato;
-	
-	@OneToMany(mappedBy="piatto")
-	@JsonManagedReference
-	private List<FotoPiatto> fotoPiatto;
-	
+
 	@ManyToOne
-	@JoinColumn(name="categoria_id")
+	@JoinColumn(name = "categoria_id")
 	@JsonBackReference("categoriaPiatto")
 	private Categoria categoria;
-	
+
 	// costruttore
-	public Piatto() {}
+	public Piatto() {
+	}
 
 	public Long getId() {
 		return id;
@@ -92,12 +94,20 @@ public class Piatto {
 		this.ordinato = ordinato;
 	}
 
-	public List<FotoPiatto> getFoto() {
-		return fotoPiatto;
+	public String getNomeFoto() {
+		return nomeFoto;
 	}
 
-	public void setFoto(List<FotoPiatto> foto) {
-		this.fotoPiatto = foto;
+	public void setNomeFoto(String nomeFoto) {
+		this.nomeFoto = nomeFoto;
+	}
+
+	public byte[] getFoto() {
+		return foto;
+	}
+
+	public void setFoto(byte[] foto) {
+		this.foto = foto;
 	}
 
 	public Categoria getCategoria() {
@@ -107,6 +117,5 @@ public class Piatto {
 	public void setCategoria(Categoria categoria) {
 		this.categoria = categoria;
 	}
-	
-	
+
 }
