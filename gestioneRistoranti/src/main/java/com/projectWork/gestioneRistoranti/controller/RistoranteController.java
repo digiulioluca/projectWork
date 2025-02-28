@@ -37,7 +37,7 @@ public class RistoranteController {
 	 * @return -> messaggio, in caso di successo
 	 */
 	@PostMapping
-	public Object createRistorante(@RequestBody Ristorante nuovoRistorante, HttpServletRequest request, HttpServletResponse response, @RequestParam("file") MultipartFile file) throws IOException {
+	public Object createRistorante(Ristorante nuovoRistorante, HttpServletRequest request, HttpServletResponse response, @RequestParam("file") MultipartFile file) throws IOException {
 		Utente authUtente = getAuthenticatedUtente(request);
 		if (authUtente == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -50,6 +50,7 @@ public class RistoranteController {
 		}
 		
 		nuovoRistorante.setFoto(file.getBytes());
+		System.out.println(file.getOriginalFilename());
 		nuovoRistorante.setNomeFoto(file.getOriginalFilename());
 		nuovoRistorante.setUtente(authUtente);
 		ristoranteRepository.save(nuovoRistorante);
@@ -115,7 +116,7 @@ public class RistoranteController {
 	 */
 
 	@PutMapping("/{id}")
-	public Object updateRistorante(@PathVariable Long id, @RequestBody Ristorante ristoranteDetails,
+	public Object updateRistorante(@PathVariable Long id, Ristorante ristoranteDetails,
 			HttpServletRequest request, HttpServletResponse response, @RequestParam("file") MultipartFile file) throws IOException {
 
 		Utente authUtente = getAuthenticatedUtente(request);
