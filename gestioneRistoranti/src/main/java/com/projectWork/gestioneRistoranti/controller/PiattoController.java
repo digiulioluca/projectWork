@@ -70,7 +70,7 @@ public class PiattoController {
 		Optional<Categoria> findCat = categoriaRepository.findById(id);
 		if(!findCat.isPresent()) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			return Collections.singletonMap("messsage", "Categoria non trovata");
+			return Collections.singletonMap("messsage", "Piatto non trovato");
 		}
 		
 		nuovoPiatto.setCategoria(findCat.get());
@@ -91,7 +91,7 @@ public class PiattoController {
 		Optional<Piatto> ricerca = piattoRepository.findById(id);
 		if (!ricerca.isPresent()) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			return Collections.singletonMap("message", "Categoria non trovata");
+			return Collections.singletonMap("message", "Piatto non trovato");
 		}
 
 		// con il metodo get ritorniamo l'oggetto Categoria
