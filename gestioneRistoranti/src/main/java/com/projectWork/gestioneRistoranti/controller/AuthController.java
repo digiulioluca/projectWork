@@ -57,6 +57,7 @@ public class AuthController {
 		result.put("message", "Login effettuato con successo"); 
 		result.put("token", token);
 		result.put("ruolo", utente.getRuolo().toString()); //aggiunta
+		result.put("id", utente.getId().toString());
 		
 		return result;
 	}
