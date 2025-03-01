@@ -8,6 +8,6 @@ import java.util.List;
 @Repository
 public interface RistoranteRepository extends JpaRepository<Ristorante, Long> {
 	
-	List<Ristorante> findByDescrizioneContaining(String descrizione);
+	List<Ristorante> findByDescrizioneContainingIgnoreCase(String descrizione);
 
 }

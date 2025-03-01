@@ -211,10 +211,12 @@ public class RistoranteController {
 	*/
 	@GetMapping("/ricerca")
     public ResponseEntity<?> ricercaRistorante(@RequestParam("descrizione") String descrizione) {
-        List<Ristorante> risultati = ristoranteRepository.findByDescrizioneContaining(descrizione);
+		System.out.println(descrizione);
+		
+		List<Ristorante> risultati = ristoranteRepository.findByDescrizioneContainingIgnoreCase(descrizione);
 
         if (risultati.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Collections.singletonMap("message", "Nessun ristorante trovato"));
         }
 
