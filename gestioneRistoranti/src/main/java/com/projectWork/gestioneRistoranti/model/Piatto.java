@@ -25,7 +25,7 @@ public class Piatto {
 	private String nome;
 
 	// campo costo (numero composto da 5 cifre totali, di cui 2 dopo la virgola)
-	@Column(nullable = false, scale = 2)
+	@Column(nullable = false)
 	private Double costo;
 
 	// decrizione piatto. Il campo può contenere max 200 caratteri
@@ -33,13 +33,13 @@ public class Piatto {
 	private String descrizione;
 
 	// nome foto
-	@Column(name = "nome_foto", nullable = true)
-	private String nomeFoto;
+	@Column(name = "nome_foto_piatto", nullable = true)
+	private String photoName;
 
 	// annotation per la gestione dei large object (foto nel nostro caso)
 	@Lob
 	@Column(length = 100000000)
-	private byte[] foto;
+	private byte[] photo;
 
 	@OneToMany(mappedBy = "piatto")
 	@JsonManagedReference("ordinePiatto")
@@ -94,28 +94,28 @@ public class Piatto {
 		this.ordinato = ordinato;
 	}
 
-	public String getNomeFoto() {
-		return nomeFoto;
-	}
-
-	public void setNomeFoto(String nomeFoto) {
-		this.nomeFoto = nomeFoto;
-	}
-
-	public byte[] getFoto() {
-		return foto;
-	}
-
-	public void setFoto(byte[] foto) {
-		this.foto = foto;
-	}
-
 	public Categoria getCategoria() {
 		return categoria;
 	}
 
 	public void setCategoria(Categoria categoria) {
 		this.categoria = categoria;
+	}
+
+	public String getPhotoName() {
+		return photoName;
+	}
+
+	public void setPhotoName(String photoName) {
+		this.photoName = photoName;
+	}
+
+	public byte[] getPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(byte[] photo) {
+		this.photo = photo;
 	}
 
 }

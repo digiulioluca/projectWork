@@ -19,8 +19,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
+@CrossOrigin(origins = {})
 @RequestMapping("/api/ristorante")
-@CrossOrigin(origins = {}) // Disabilita richieste CORS da origini esterne
+ // Disabilita richieste CORS da origini esterne
 public class RistoranteController {
 
 	@Autowired
@@ -71,7 +72,7 @@ public class RistoranteController {
 	 * 
 	 */
 	@GetMapping("/{id}")
-	public Object getRistoranteDetailsById(@PathVariable Long id, HttpServletResponse response) {
+	public Object getRistoranteDetailsById(@PathVariable("idUpdate") Long id, HttpServletResponse response) {
 		Optional<Ristorante> restOpt = ristoranteRepository.findById(id);
 		if(!restOpt.isPresent()) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);

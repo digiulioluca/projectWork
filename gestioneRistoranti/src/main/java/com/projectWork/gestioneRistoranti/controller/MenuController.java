@@ -55,7 +55,7 @@ public class MenuController {
 	 * 
 	 * @return -> messaggio, in caso di successo
 	 */
-	@PostMapping("/{id}/nuovo")
+	@PostMapping("/{id}")
 	public Object createMenu(@RequestBody Menu nuovoMenu, @PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
 		// authentication
 		Utente authUtente = getAuthenticatedUtente(request);

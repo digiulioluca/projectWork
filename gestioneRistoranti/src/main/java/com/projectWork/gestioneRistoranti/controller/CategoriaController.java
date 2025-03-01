@@ -49,7 +49,7 @@ public class CategoriaController {
 	 * 
 	 * @return	messaggio con esito
 	 */
-	@PostMapping("/{id}/nuovo")
+	@PostMapping("/{id}")
 	public Object createCategoria(@RequestBody Categoria nuovaCategoria, @PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
 		//authentication
 		Utente authUtente = getAuthenticatedUtente(request);

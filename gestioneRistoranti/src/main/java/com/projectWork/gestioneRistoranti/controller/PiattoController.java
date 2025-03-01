@@ -6,14 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.projectWork.gestioneRistoranti.auth.TokenService;
@@ -27,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
+@CrossOrigin(origins = {})
 @RequestMapping("/api/piatto")
 public class PiattoController {
 
@@ -45,131 +39,35 @@ public class PiattoController {
 		return piattoRepository.findAll();
 	}
 
-	/*
-	 * Metodo per creare un piatto
-	 * 
-	 * @param 	oggetto di tipo Piatto da aggiungere
-	 * @param	id della categoria di riferimento
-	 * @param	response
-	 * @param	request
-	 * 
-	 * @return -> messaggio, in caso di successo
-	 */
-	@PostMapping("/{id}/nuovo")
-	public Object createPiatto(Piatto nuovoPiatto, @PathVariable Long id, HttpServletRequest request, HttpServletResponse response, @RequestParam("file") MultipartFile file) throws IOException {
-		// authentication
-		Utente authUtente = getAuthenticatedUtente(request);
-		if (authUtente == null) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return Collections.singletonMap("message", "Non autorizzato");
-		}
-
-		if (!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return Collections.singletonMap("message", "Non hai i permessi per effettuare quest'operazione");
-		}
-		
-		Optional<Categoria> findCat = categoriaRepository.findById(id);
-		if(!findCat.isPresent()) {
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			return Collections.singletonMap("messsage", "Categoria non trovata");
-		}
-		
-		nuovoPiatto.setNomeFoto(file.getOriginalFilename());
-		nuovoPiatto.setFoto(file.getBytes());
-		nuovoPiatto.setCategoria(findCat.get());
-		piattoRepository.save(nuovoPiatto);
-		return Collections.singletonMap("message", "Piatto aggiunto con successo!");
-	}
-
-	/* Metodo per restituire i dati di un singolo piatto
-	 * 
-	 * @param 	id del piatto selezionato
-	 * @param	response
-	 * 
-	 * @return	oggetto 
-	 * 
-	*/
-	@GetMapping("/{id}")
-	public Object leggiPiattoById(@PathVariable Long id, HttpServletResponse response) {
-		Optional<Piatto> ricerca = piattoRepository.findById(id);
-		if (!ricerca.isPresent()) {
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			return Collections.singletonMap("message", "Categoria non trovata");
-		}
-
-		// con il metodo get ritorniamo l'oggetto Categoria
-		return ricerca.get();
-	}
-
-	/*
-	 * Metodo per aggiornare i dati del piatto
-	 * 
-	 * @param id -> id del piatto di cui andremo a modificare i dati
-	 * @param piattoDetails -> oggetto con i nuovi dati
-	 * @param request
-	 * @param response
-	 * 
-	 * @return in caso di successo, il 'nuovo' oggetto piatto; in caso contrario
-	 * errore
-	 */
-	@PutMapping("/{id}")
-	public Object updatePiatto(@PathVariable Long id, Piatto piattoDetails, HttpServletResponse response,
-			HttpServletRequest request, @RequestParam("file") MultipartFile file) throws IOException {
+	@PostMapping("/{idCategoria}")
+	public Object createPiatto(@PathVariable("idCategoria") Long id, @RequestParam("foto_piatto") MultipartFile fotoPiatto, 
+			HttpServletRequest request, HttpServletResponse response, Piatto piatto) throws IOException{
 		Utente authUtente = getAuthenticatedUtente(request);
 		if (authUtente == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return Collections.singletonMap("message", "Non autorizzato");
 		}
 		
-		if (!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return Collections.singletonMap("message", "Non hai i permessi per effettuare quest'operazione");
+		if(!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return Collections.singletonMap("message", "Accesso negato");
 		}
 		
-		Optional<Piatto> piatto = piattoRepository.findById(id);
-		if (!piatto.isPresent()) {
+		Optional<Categoria> findCategoria = categoriaRepository.findById(id);
+		if(!findCategoria.isPresent()) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			return Collections.singletonMap("message", "Piatto non trovato");
+			return Collections.singletonMap("message", "categoria non trovata");
 		}
 		
-		Piatto p = piatto.get();
-		p.setFoto(file.getBytes());
-		p.setNomeFoto(file.getOriginalFilename());
-		p.setNome(piattoDetails.getNome());
-		p.setCosto(piattoDetails.getCosto());
-		p.setDescrizione(piattoDetails.getDescrizione());
-		p.setCosto(piattoDetails.getCosto());
-		p.setCategoria(piattoDetails.getCategoria());
-
-		return piattoRepository.save(p);
+		piatto.setCategoria(findCategoria.get());
+		piatto.setPhoto(fotoPiatto.getBytes());
+		piatto.setPhotoName(fotoPiatto.getOriginalFilename());
+		piattoRepository.save(piatto);
+		return Collections.singletonMap("message", "Piatto aggiunto con successo");
 	}
-
-	/*
-	 * Metodo per cancellare un piatto
-	 */
-	@DeleteMapping("/{id}")
-	public Object deletePiatto(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
-		Utente authUtente = getAuthenticatedUtente(request);
-		if (authUtente == null) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return Collections.singletonMap("message", "Non autorizzato");
-		}
-		
-		if (!"ristoratore".equalsIgnoreCase(authUtente.getRuolo().toString())) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return Collections.singletonMap("message", "Non hai i permessi per effettuare quest'operazione");
-		}
-		
-		Optional<Piatto> p = piattoRepository.findById(id);
-		if (!p.isPresent()) {
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			return Collections.singletonMap("message", "Piatto non trovato");
-		}
-		piattoRepository.delete(p.get());
-		return Collections.singletonMap("message", "Piatto cancellato con successo");
-	}
-
+	
+	
+	
 	/**
 	 * Metodo di utilità per estrarre il token di autenticazione dall'header
 	 * "Authorization". Il token viene inviato nel formato "Bearer <token>".
